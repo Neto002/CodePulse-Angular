@@ -6,6 +6,7 @@ import { Observable, Subscription } from "rxjs";
 import { CategoryService } from "../../category/services/category.service";
 import { Category } from "../../category/models/category.model";
 import { UpdateBlogPost } from "../models/update-blog-post.model";
+import { ImageService } from "../../../shared/components/image-selector/services/image.service";
 
 @Component({
   selector: 'app-edit-blogpost',
@@ -15,18 +16,22 @@ import { UpdateBlogPost } from "../models/update-blog-post.model";
 export class EditBlogpostComponent implements OnInit, OnDestroy {
 
   id: string | null = null;
+  model?: BlogPost
+  categories$?: Observable<Category[]>;
+  selectedCategories?: string[];
+  isImageSelectorVisible: boolean = false;
+
   routeSubscription?: Subscription;
   getBlogPostSubscription?: Subscription;
   updateBlogPostSubscription?: Subscription;
   deleteBlogPostSubscription?: Subscription;
-  model?: BlogPost
-  categories$?: Observable<Category[]>;
-  selectedCategories?: string[];
+  imageSelectSubscription?: Subscription;
 
   constructor(private blogPostService: BlogPostService,
               private categoryService: CategoryService,
               private route: ActivatedRoute,
-              private router: Router) {
+              private router: Router,
+              private imageService: ImageService) {
   }
 
   ngOnInit(): void {
@@ -35,6 +40,8 @@ export class EditBlogpostComponent implements OnInit, OnDestroy {
     this.routeSubscription = this.route.paramMap.subscribe({
       next: (params) => {
         this.id = params.get('id');
+
+        // Get BlogPost from API
         if (this.id) {
           this.getBlogPostSubscription = this.blogPostService.getBlogPostById(this.id).subscribe({
             next: (response) => {
@@ -43,6 +50,16 @@ export class EditBlogpostComponent implements OnInit, OnDestroy {
             }
           })
         }
+
+        // Updating featured image url based on image selection
+        this.imageSelectSubscription = this.imageService.onSelectImage().subscribe({
+          next: (response) => {
+            if (this.model) {
+              this.model.featuredImageUrl = response.url;
+              this.closeImageSelector();
+            }
+          }
+        });
       }
     })
   }
@@ -80,10 +97,19 @@ export class EditBlogpostComponent implements OnInit, OnDestroy {
     }
   }
 
+  openImageSelector() {
+    this.isImageSelectorVisible = true;
+  }
+
+  closeImageSelector() {
+    this.isImageSelectorVisible = false;
+  }
+
   ngOnDestroy(): void {
     this.routeSubscription?.unsubscribe();
     this.getBlogPostSubscription?.unsubscribe();
     this.updateBlogPostSubscription?.unsubscribe();
     this.deleteBlogPostSubscription?.unsubscribe();
+    this.imageSelectSubscription?.unsubscribe();
   }
 }
