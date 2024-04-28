@@ -27,6 +27,10 @@ export class BlogPostService {
     return this.http.get<BlogPost>(`${this.blogPostEndpointUrl}/${id}`);
   }
 
+  getBlogPostByUrlHandle(url: string): Observable<BlogPost> {
+    return this.http.get<BlogPost>(`${this.blogPostEndpointUrl}/${url}`);
+  }
+
   updateBlogPost(id: string, updatedBlogPost: UpdateBlogPost): Observable<BlogPost> {
     return this.http.put<BlogPost>(`${this.blogPostEndpointUrl}/${id}`, updatedBlogPost);
   }
