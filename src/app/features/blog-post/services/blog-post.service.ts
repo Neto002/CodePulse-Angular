@@ -15,10 +15,6 @@ export class BlogPostService {
   constructor(private http: HttpClient) {
   }
 
-  createBlogPost(model: AddBlogPostRequest): Observable<BlogPost> {
-    return this.http.post<BlogPost>(this.blogPostEndpointUrl, model);
-  }
-
   getAllBlogPosts(): Observable<BlogPost[]> {
     return this.http.get<BlogPost[]>(this.blogPostEndpointUrl);
   }
@@ -31,11 +27,15 @@ export class BlogPostService {
     return this.http.get<BlogPost>(`${this.blogPostEndpointUrl}/${url}`);
   }
 
+  createBlogPost(model: AddBlogPostRequest): Observable<BlogPost> {
+    return this.http.post<BlogPost>(`${this.blogPostEndpointUrl}?addAuth=true`, model);
+  }
+
   updateBlogPost(id: string, updatedBlogPost: UpdateBlogPost): Observable<BlogPost> {
-    return this.http.put<BlogPost>(`${this.blogPostEndpointUrl}/${id}`, updatedBlogPost);
+    return this.http.put<BlogPost>(`${this.blogPostEndpointUrl}/${id}?addAuth=true`, updatedBlogPost);
   }
 
   deleteBlogPost(id: string): Observable<BlogPost> {
-    return this.http.delete<BlogPost>(`${this.blogPostEndpointUrl}/${id}`);
+    return this.http.delete<BlogPost>(`${this.blogPostEndpointUrl}/${id}?addAuth=true`);
   }
 }
